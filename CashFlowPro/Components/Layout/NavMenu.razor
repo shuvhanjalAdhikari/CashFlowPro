@@ -1,0 +1,91 @@
+﻿<style>
+    /* Navbar styling */
+
+    .app-name{
+        background-color: #051f20;
+        color: white;
+        padding: 10px 0;
+    }
+
+  
+
+    .navbar-dark .navbar-brand {
+        color: white;
+
+
+        
+    }
+
+    .navbar-toggler {
+        C
+        border: none;
+    }
+
+    .nav-scrollable {
+        background-color: #051f20;
+        padding: 10px;
+        max-height: 100vh;
+        overflow-y: auto;
+    }
+
+    .nav-item {
+        margin: 10px 0;
+    }
+
+    .nav-link {
+        color: white;
+        font-weight: bold;
+        padding: 10px;
+        text-decoration: none;
+        display: flex;
+        align-items: center;
+    }
+
+        .nav-link:hover {
+            background-color: #4F318F; /* Purple hover effect */
+            color: white;
+        }
+
+        .nav-link .bi {
+            margin-right: 8px;
+        }
+
+        .nav-link.active {
+            background-color: #4F318F; /* Active link color */
+            color: white;
+        }
+</style>
+
+<div class=" app-name navbar navbar-dark">
+    <div class="container-fluid">
+        <a class="navbar-brand" href="">CashFlowPro</a>
+    </div>
+</div>
+
+<input type="checkbox" title="Navigation menu" class="navbar-toggler" />
+
+<div class="nav-scrollable" onclick="document.querySelector('.navbar-toggler').click()">
+    <nav class="flex-column">
+        <div class="nav-item px-3">
+            <NavLink class="nav-link" href="/Dashboard" Match="NavLinkMatch.All">
+                <span class="bi bi-house-door-fill-nav-menu" aria-hidden="true"></span> Dashboard
+            </NavLink>
+        </div>
+
+        <div class="nav-item px-3">
+            <NavLink class="nav-link" href="/Transaction">
+                <span class="bi bi-list-nested-nav-menu" aria-hidden="true"></span> Transaction
+            </NavLink>
+        </div>
+        <div class="nav-item px-3">
+            <NavLink class="nav-link" href="/Debt">
+                <span class="bi bi-plus-square-fill-nav-menu" aria-hidden="true"></span> Debt
+            </NavLink>
+        </div>
+        <div class="nav-item px-3">
+            <NavLink class="nav-link" href="/login">
+                <span class="bi bi-list-nested-nav-menu" aria-hidden="true"></span> Logout
+            </NavLink>
+        </div>
+    </nav>
+</div>

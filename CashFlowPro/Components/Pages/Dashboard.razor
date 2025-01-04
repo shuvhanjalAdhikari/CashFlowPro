@@ -1,0 +1,347 @@
+﻿@page "/Dashboard"
+@using System.Text.Json
+@using System.IO
+
+<style>
+    .dashboard-card {
+        border-radius: 10px;
+        box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+        padding: 20px;
+        margin-bottom: 20px;
+   
+    }
+
+    .dashboard-card-1 {
+        border-radius: 10px;
+        box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+        padding: 20px;
+        margin-bottom: 20px;
+        background-color: #163832;
+    }
+
+    .dashboard-header {
+        display: flex;
+        justify-content: space-between;
+    }
+
+    /* Additional styling for the tables */
+    .table {
+        margin-top: 20px;
+    }
+
+        .table th, .table td {
+            padding: 10px;
+            border: 1px solid #ddd;
+            text-align: left;
+        }
+
+        .table th {
+            background-color: #163832;
+            color: white;
+        }
+
+        .table tbody tr:hover {
+            background-color: #f9f9f9;
+        }
+
+    .container {
+        max-width: 1200px;
+        margin: auto;
+    }
+
+    .btn {
+        margin-left: 10px;
+        background-color: #0b2b26;
+        color: white;
+    }
+</style>
+
+<div class="container mt-4">
+    <!-- Parent Card for Dashboard Stats -->
+    <div class="row">
+        <div class="col-md-12">
+            <div class="dashboard-card bg-light p-4">
+                <h5 class="text-center">Dashboard Stats</h5>
+                <div class="row">
+                    <div class="col-md-4">
+                        <div class="dashboard-card-1 text-white text-center p-4">
+                            <h5>Total Inflows</h5>
+                            <h2>@totalIncome</h2>
+                        </div>
+                    </div>
+                    <div class="col-md-4">
+                        <div class="dashboard-card-1 text-white text-center p-4">
+                            <h5>Total Outflows</h5>
+                            <h2>@totalExpense</h2>
+                        </div>
+                    </div>
+                    <div class="col-md-4">
+                        <div class="dashboard-card-1 text-white text-center p-4">
+                            <h5>Total Debt</h5>
+                            <h2>@totalDebt</h2>
+                        </div>
+                    </div>
+                </div>
+                <div class="row">
+                    <div class="col-md-4">
+                        <div class="dashboard-card-1 text-white text-center p-4">
+                            <h5>Available Balance</h5>
+                            <h2>@availableBalance</h2>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Date Range Filter for All Debts -->
+    <div class="row mt-4">
+        <div class="col-md-12">
+            <div class="dashboard-card">
+                <h5>All Debts</h5>
+                <div class="form-group">
+                    <label>Start Date</label>
+                    <input type="date" @bind="startDateDebts" class="form-control" />
+                    <label>End Date</label>
+                    <input type="date" @bind="endDateDebts" class="form-control" />
+                    <button class="btn mt-2" @onclick="FilterDebts">Filter Debts</button>
+                    <button class="btn mt-2 ml-2" @onclick="ClearDebtsFilters">Clear Filters</button>
+
+                    <select class="form-control mt-2" @bind="debtStatusFilter">
+                        <option value="">All Debts</option>
+                        <option value="Pending">Pending Debts</option>
+                        <option value="Cleared">Cleared Debts</option>
+                    </select>
+
+                    <button class="btn mt-2 ml-2" @onclick="ShowTop5HighestDebts">Top 5 Highest Debts</button>
+                    <button class="btn mt-2 ml-2" @onclick="ShowTop5LowestDebts">Top 5 Lowest Debts</button>
+                </div>
+                <table class="table table-striped mt-3">
+                    <thead>
+                        <tr>
+                            <th>Debt Source</th>
+                            <th>Amount</th>
+                            <th>Due Date</th>
+                            <th>Status</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        @if (highlightedDebt != null)
+                        {
+                            <tr>
+                                <td>@highlightedDebt.DebtSource</td>
+                                <td>@highlightedDebt.Amount</td>
+                                <td>@highlightedDebt.DueDate?.ToString("MM/dd/yyyy")</td>
+                                <td>@highlightedDebt.Status</td>
+                            </tr>
+                        }
+                        @foreach (var debt in filteredDebts)
+                        {
+                            <tr>
+                                <td>@debt.DebtSource</td>
+                                <td>@debt.Amount</td>
+                                <td>@debt.DueDate?.ToString("MM/dd/yyyy")</td>
+                                <td>@debt.Status</td>
+                            </tr>
+                        }
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+
+    <!-- Date Range Filter for Transactions -->
+    <div class="row mt-4">
+        <div class="col-md-12">
+            <div class="dashboard-card">
+                <h5>All Transactions</h5>
+                <div class="form-group">
+                    <label>Start Date</label>
+                    <input type="date" @bind="startDateTransactions" class="form-control" />
+                    <label>End Date</label>
+                    <input type="date" @bind="endDateTransactions" class="form-control" />
+                    <button class="btn mt-2" @onclick="FilterTransactions">Filter Transactions</button>
+                    <button class="btn mt-2 ml-2" @onclick="ClearTransactionsFilters">Clear Filters</button>
+                    <button class="btn mt-2 ml-2" @onclick="ShowTop5HighestTransactions">Top 5 Highest Transactions</button>
+                    <button class="btn mt-2 ml-2" @onclick="ShowTop5LowestTransactions">Top 5 Lowest Transactions</button>
+                </div>
+                <table class="table table-striped mt-3">
+                    <thead>
+                        <tr>
+                            <th>Description</th>
+                            <th>Amount</th>
+                            <th>Date</th>
+                            <th>Type</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        @if (highlightedTransaction != null)
+                        {
+                            <tr>
+                                <td>@highlightedTransaction.Description</td>
+                                <td>@highlightedTransaction.Amount</td>
+                                <td>@highlightedTransaction.Date.ToString("MM/dd/yyyy")</td>
+                                <td>@highlightedTransaction.Type</td>
+                            </tr>
+                        }
+                        @foreach (var transaction in filteredTransactions)
+                        {
+                            <tr>
+                                <td>@transaction.Description</td>
+                                <td>@transaction.Amount</td>
+                                <td>@transaction.Date.ToString("MM/dd/yyyy")</td>
+                                <td>@transaction.Type</td>
+                            </tr>
+                        }
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+</div>
+
+@code {
+    private decimal totalIncome;
+    private decimal totalExpense;
+    private decimal totalDebt;
+    private decimal availableBalance;
+
+    private DateTime? startDateDebts = DateTime.Now.AddMonths(-1);
+    private DateTime? endDateDebts = DateTime.Now;
+
+    private DateTime? startDateTransactions = DateTime.Now.AddMonths(-1);
+    private DateTime? endDateTransactions = DateTime.Now;
+
+    private string debtStatusFilter = ""; // Track selected status filter for debts
+
+    private List<Transaction> transactions = new List<Transaction>();
+    private List<Debt> debts = new List<Debt>();
+
+    private List<Debt> filteredDebts;
+    private List<Transaction> filteredTransactions;
+
+    private List<Debt> top5HighestDebts;
+    private List<Debt> top5LowestDebts;
+    private List<Transaction> top5HighestTransactions;
+    private List<Transaction> top5LowestTransactions;
+
+    private Transaction? highlightedTransaction;
+    private Debt? highlightedDebt;
+
+    protected override void OnInitialized()
+    {
+        LoadTransactions();
+        LoadDebts();
+        CalculateTotals();
+        CalculateAvailableBalance();
+        FilterDebts();
+        FilterTransactions();
+    }
+
+    private void LoadTransactions()
+    {
+        string filePath = @"C:\Users\ashuv\AppDevCW1\CashFlowPro\CashFlowPro\CashFlowPro\wwwroot\transaction.json";
+
+        if (File.Exists(filePath))
+        {
+            var json = File.ReadAllText(filePath);
+            transactions = JsonSerializer.Deserialize<List<Transaction>>(json) ?? new List<Transaction>();
+        }
+    }
+
+    private void LoadDebts()
+    {
+        string filePath = @"C:\Users\ashuv\AppDevCW1\CashFlowPro\CashFlowPro\CashFlowPro\wwwroot\debt.json";
+
+        if (File.Exists(filePath))
+        {
+            var json = File.ReadAllText(filePath);
+            debts = JsonSerializer.Deserialize<List<Debt>>(json) ?? new List<Debt>();
+        }
+    }
+
+    private void CalculateTotals()
+    {
+        totalIncome = transactions.Where(t => t.Type == "Income").Sum(t => t.Amount);
+        totalExpense = transactions.Where(t => t.Type == "Expense").Sum(t => t.Amount);
+        totalDebt = debts.Where(d => d.Status == "Pending").Sum(d => d.Amount);
+    }
+
+    private void CalculateAvailableBalance()
+    {
+        availableBalance = totalIncome + totalDebt - totalExpense;
+    }
+
+    private void FilterDebts()
+    {
+        filteredDebts = debts.Where(d =>
+            (string.IsNullOrEmpty(debtStatusFilter) || d.Status.Equals(debtStatusFilter, StringComparison.OrdinalIgnoreCase)) &&
+            (d.DueDate >= startDateDebts && d.DueDate <= endDateDebts)
+        ).ToList();
+        StateHasChanged();  // Trigger re-render to update UI
+    }
+
+    private void FilterTransactions()
+    {
+        filteredTransactions = transactions.Where(t => t.Date >= startDateTransactions && t.Date <= endDateTransactions).ToList();
+    }
+
+    private void ClearDebtsFilters()
+    {
+        startDateDebts = null;  // Set startDateDebts to null
+        endDateDebts = null;    // Set endDateDebts to null
+        debtStatusFilter = "";  // Reset debt status filter
+        FilterDebts(); // Reapply filters
+    }
+
+    private void ClearTransactionsFilters()
+    {
+        startDateTransactions = null;
+        endDateTransactions = null;
+        FilterTransactions();
+    }
+
+    private void ShowTop5HighestDebts()
+    {
+        top5HighestDebts = debts.OrderByDescending(d => d.Amount).Take(5).ToList();
+        filteredDebts = top5HighestDebts;
+        StateHasChanged();
+    }
+
+    private void ShowTop5LowestDebts()
+    {
+        top5LowestDebts = debts.OrderBy(d => d.Amount).Take(5).ToList();
+        filteredDebts = top5LowestDebts;
+        StateHasChanged();
+    }
+
+    private void ShowTop5HighestTransactions()
+    {
+        top5HighestTransactions = transactions.OrderByDescending(t => t.Amount).Take(5).ToList();
+        filteredTransactions = top5HighestTransactions;
+        StateHasChanged();
+    }
+
+    private void ShowTop5LowestTransactions()
+    {
+        top5LowestTransactions = transactions.OrderBy(t => t.Amount).Take(5).ToList();
+        filteredTransactions = top5LowestTransactions;
+        StateHasChanged();
+    }
+
+    public class Debt
+    {
+        public string DebtSource { get; set; }
+        public decimal Amount { get; set; }
+        public DateTime? DueDate { get; set; }
+        public string Status { get; set; }
+    }
+
+    public class Transaction
+    {
+        public string Description { get; set; }
+        public decimal Amount { get; set; }
+        public DateTime Date { get; set; }
+        public string Type { get; set; }
+    }
+}

@@ -1,0 +1,282 @@
+﻿@using System.Text.Json;
+@page "/Debt"
+
+
+<style>
+    /* Table Styling */
+    .table {
+        width: 100%;
+        margin-top: 20px;
+        border-collapse: collapse;
+    }
+
+        .table th, .table td {
+            padding: 10px;
+            border: 1px solid #ddd;
+            text-align: left;
+        }
+
+        .table th {
+            background-color: #163832; /* Dark green background for table headers */
+            color: white; /* White text for headers */
+        }
+
+        .table tbody tr:hover {
+            background-color: #f9f9f9; /* Light grey background on row hover */
+        }
+
+    /* Form Inputs */
+    .form-group {
+        margin-bottom: 15px;
+    }
+
+    .form-control, .form-select {
+        width: 100%;
+        padding: 10px;
+        border-radius: 5px;
+        border: 1px solid #ddd;
+        font-size: 14px;
+    }
+
+        .form-control:focus, .form-select:focus {
+            border-color: #0b2b26;
+            box-shadow: 0 0 5px rgba(11, 43, 38, 0.3);
+        }
+
+    /* Buttons */
+    .btn {
+        padding: 10px 20px;
+        border-radius: 5px;
+        font-weight: bold;
+        color: #fff;
+        background-color: #0b2b26;
+        border: none;
+    }
+
+        .btn:hover {
+            background-color: #0a2420;
+        }
+
+    .btn-outline-secondary {
+        color: #0b2b26;
+        border: 1px solid #0b2b26;
+    }
+
+        .btn-outline-secondary:hover {
+            background-color: #0b2b26;
+            color: #fff;
+        }
+
+    .d-flex {
+        display: flex;
+    }
+
+    .me-3 {
+        margin-right: 1rem;
+    }
+
+    .ms-3 {
+        margin-left: 1rem;
+    }
+
+    /* Modal Styles */
+    .modal-dialog {
+        max-width: 500px;
+        margin: 0 auto;
+    }
+
+    .modal-body {
+        padding: 30px;
+    }
+
+    .modal-header {
+        border-bottom: 1px solid #ddd;
+    }
+
+    .modal-footer {
+        display: flex;
+        justify-content: flex-end;
+    }
+</style>
+
+<div class="d-flex justify-content-between mb-3">
+    <div class="d-flex">
+        <div class="me-3">
+            <label for="filterDebtSource">Debt Source:</label>
+            <input type="text" id="filterDebtSource" class="form-control" @bind="filterDebtSource" placeholder="Search by debt source" />
+        </div>
+        <div class="me-3">
+            <label for="filterDebtStatus">Debt Status:</label>
+            <select class="form-select" @bind="filterDebtStatus">
+                <option value="">Select status</option>
+                <option value="Pending">Pending</option>
+                <option value="Cleared">Cleared</option>
+            </select>
+        </div>
+    </div>
+    <div class="align-self-end">
+        <button class="btn btn-secondary" @onclick="FilterDebts">Filter</button>
+        <button class="btn btn-outline-secondary" @onclick="ClearDebtFilters">Clear</button>
+        <button class="btn btn-primary ms-3" @onclick="OpenDebtModal">Add Debt</button>
+    </div>
+</div>
+
+<table class="table">
+    <thead>
+        <tr>
+            <th>Debt Source</th>
+            <th>Amount</th>
+            <th>Due Date</th>
+            <th>Status</th>
+            <th>Actions</th>
+        </tr>
+    </thead>
+    <tbody>
+        @foreach (var debt in filteredDebts)
+        {
+            <tr class="@((debt.Status == "Pending") ? "table-warning" : "")">
+                <td>@debt.DebtSource</td>
+                <td>@debt.Amount</td>
+                <td>@debt.DueDate?.ToShortDateString()</td>
+                <td>@debt.Status</td>
+                <td>
+                    <button class="btn btn-success" @onclick="() => MarkAsCleared(debt)">Mark as Cleared</button>
+                </td>
+            </tr>
+        }
+    </tbody>
+</table>
+
+<EditForm Model="newDebt">
+    <div class="modal" style="display:@(isDebtModalOpen ? "block" : "none")">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title">Add Debt</h5>
+                    <button type="button" class="btn-close" @onclick="CloseDebtModal"></button>
+                </div>
+                <div class="modal-body">
+                    <div class="mb-3">
+                        <label>Debt Source</label>
+                        <input type="text" class="form-control" @bind="newDebt.DebtSource" placeholder="Enter debt source" />
+                    </div>
+                    <div class="mb-3">
+                        <label>Amount</label>
+                        <input type="number" class="form-control" @bind="newDebt.Amount" placeholder="Enter debt amount" />
+                    </div>
+                    <div class="mb-3">
+                        <label>Due Date</label>
+                        <input type="date" class="form-control" @bind="newDebt.DueDate" />
+                    </div>
+                    <div class="mb-3">
+                        <label>Status</label>
+                        <select class="form-select" @bind="newDebt.Status">
+                            <option value="Pending">Pending</option>
+                            <option value="Cleared">Cleared</option>
+                        </select>
+                    </div>
+
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" @onclick="CloseDebtModal">Cancel</button>
+                    <button type="button" class="btn btn-primary" @onclick="AddDebt">Save</button>
+                </div>
+            </div>
+        </div>
+    </div>
+</EditForm>
+
+
+@code {
+    // Set the file path for debts
+    private static readonly string FilePath = Path.Combine(@"C:\Users\ashuv\AppDevCW1\CashFlowPro\CashFlowPro\CashFlowPro\wwwroot", "debt.json");
+
+    private List<Debt> debts = new();
+    private List<Debt> filteredDebts = new();
+    private Debt newDebt = new();
+    private string filterDebtSource;
+    private string filterDebtStatus;
+    private bool isDebtModalOpen = false;
+
+    // Load debts from the JSON file on initialization
+    protected override void OnInitialized()
+    {
+        LoadDebts();  // Load debts from the file
+        filteredDebts = debts;  // Start with all debts
+    }
+
+    // Method to load debts from the JSON file
+    private void LoadDebts()
+    {
+        if (File.Exists(FilePath))
+        {
+            var json = File.ReadAllText(FilePath);
+            debts = JsonSerializer.Deserialize<List<Debt>>(json) ?? new List<Debt>();
+        }
+    }
+
+    // Method to save debts back to the JSON file
+    private void SaveDebts()
+    {
+        var json = JsonSerializer.Serialize(debts, new JsonSerializerOptions { WriteIndented = true });
+        File.WriteAllText(FilePath, json);
+    }
+
+    // Filter debts based on criteria
+    private void FilterDebts()
+    {
+        filteredDebts = debts.Where(d =>
+            (string.IsNullOrWhiteSpace(filterDebtSource) || d.DebtSource != null && d.DebtSource.Contains(filterDebtSource, StringComparison.OrdinalIgnoreCase)) &&
+            (string.IsNullOrWhiteSpace(filterDebtStatus) || d.Status.Equals(filterDebtStatus, StringComparison.OrdinalIgnoreCase))
+        ).ToList();
+    }
+
+
+    // Clear all debt filters and show all debts
+    private void ClearDebtFilters()
+    {
+        filterDebtSource = null;
+        filterDebtStatus = null;
+        filteredDebts = debts;
+    }
+
+    // Add a new debt to the list and save
+    private void AddDebt()
+    {
+        // Ensure status is set to "Pending" by default if not provided
+        if (string.IsNullOrEmpty(newDebt.Status))
+        {
+            newDebt.Status = "Pending"; // Default to Pending
+        }
+
+        debts.Add(newDebt);
+        newDebt = new Debt(); // Reset the new debt form
+        FilterDebts();  // Apply filters after adding
+        CloseDebtModal();  // Close the modal after adding
+        SaveDebts();  // Save the updated list to the file
+    }
+
+    // Open debt modal for adding a new debt
+    private void OpenDebtModal() => isDebtModalOpen = true;
+
+    // Close debt modal
+    private void CloseDebtModal() => isDebtModalOpen = false;
+
+    // Mark a debt as cleared
+    private void MarkAsCleared(Debt debt)
+    {
+        debt.Status = "Cleared";  // Mark the status as Cleared
+        FilterDebts();  // Reapply the filter after status change
+        SaveDebts();  // Save the updated list to the file
+    }
+
+    // Debt class for managing debt details
+    public class Debt
+    {
+        public string DebtSource { get; set; }
+        public decimal Amount { get; set; }
+        public DateTime? DueDate { get; set; }
+        public string Status { get; set; } // "Pending" or "Cleared"
+    }
+}
+

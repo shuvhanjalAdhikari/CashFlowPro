@@ -1,0 +1,343 @@
+@page "/Transaction"
+@using System.Text.Json;
+
+
+<style>
+    .container {
+        padding: 20px;
+    }
+
+    .filter-container {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 15px;
+    }
+
+        .filter-container .form-group {
+            flex: 1;
+            min-width: 150px;
+        }
+
+            .filter-container .form-group select,
+            .filter-container .form-group input {
+                width: 100%;
+            }
+
+    .filter-actions {
+        display: flex;
+        gap: 10px;
+        align-items: center;
+        margin-top: 10px;
+    }
+
+    .table {
+        width: 100%;
+        margin-top: 20px;
+        border-collapse: collapse;
+    }
+
+        .table th, .table td {
+            padding: 10px;
+            border: 1px solid #ddd;
+            text-align: left;
+        }
+
+        .table th {
+            background-color: #163832;
+            color: white;
+        }
+
+        .table tbody tr:hover {
+            background-color: #f9f9f9;
+        }
+
+    .btn {
+        background-color: #0b2b26;
+        color: white;
+        border: none;
+        padding: 10px 20px;
+        cursor: pointer;
+        border-radius: 4px;
+        transition: background-color 0.3s ease;
+    }
+
+        .btn:hover {
+            background-color: #09322a;
+        }
+
+    .modal {
+        background-color: rgba(0, 0, 0, 0.5);
+        position: fixed;
+        top: 0;
+        left: 0;
+        right: 0;
+        bottom: 0;
+        display: flex;
+        justify-content: center;
+        align-items: center;
+    }
+
+    .modal-dialog {
+        background-color: white;
+        border-radius: 5px;
+        padding: 20px;
+        max-width: 500px;
+        width: 100%;
+    }
+
+    .modal-header {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+    }
+
+    .modal-footer {
+        display: flex;
+        justify-content: flex-end;
+        gap: 10px;
+    }
+</style>
+
+<div class="container">
+
+    <div class="filter-container">
+        <div class="form-group">
+            <label for="fromDate">From:</label>
+            <input type="date" id="fromDate" class="form-control" @bind="fromDate" />
+        </div>
+        <div class="form-group">
+            <label for="toDate">To:</label>
+            <input type="date" id="toDate" class="form-control" @bind="toDate" />
+        </div>
+        <div class="form-group">
+            <label for="filterTitle">Title:</label>
+            <input type="text" id="filterTitle" class="form-control" @bind="filterTitle" placeholder="Search by title" />
+        </div>
+        <div class="form-group">
+            <label for="filterType">Type:</label>
+            <select class="form-select" @bind="filterType">
+                <option value="">Select type</option>
+                <option value="Income">Income</option>
+                <option value="Expense">Expense</option>
+            </select>
+        </div>
+        <div class="form-group">
+            <label for="filterTags">Tags:</label>
+            <select class="form-select" @bind="filterTags">
+                <option value="">Select a tag</option>
+                <option value="Yearly">Yearly</option>
+                <option value="Monthly">Monthly</option>
+                <option value="Food">Food</option>
+                <option value="Drinks">Drinks</option>
+                <option value="Clothes">Clothes</option>
+                <option value="Gadgets">Gadgets</option>
+                <option value="Miscellaneous">Miscellaneous</option>
+                <option value="Fuel">Fuel</option>
+                <option value="Rent">Rent</option>
+                <option value="EMI">EMI</option>
+                <option value="Party">Party</option>
+            </select>
+        </div>
+        <div class="form-group">
+            <label for="sortOrder">Sort by Date:</label>
+            <select class="form-select" @bind="sortOrder">
+                <option value="Ascending">Ascending</option>
+                <option value="Descending">Descending</option>
+            </select>
+        </div>
+    </div>
+
+    <div class="filter-actions">
+        <button class="btn" @onclick="FilterTransactions">Filter</button>
+        <button class="btn btn-outline-secondary" @onclick="ClearFilters">Clear</button>
+        <button class="btn" @onclick="OpenModal">Add Transaction</button>
+    </div>
+
+    <table class="table">
+        <thead>
+            <tr>
+                <th>Date</th>
+                <th>Title</th>
+                <th>Description</th>
+                <th>Amount</th>
+                <th>Type</th>
+                <th>Tags</th>
+            </tr>
+        </thead>
+        <tbody>
+            @foreach (var transaction in filteredTransactions)
+            {
+                <tr>
+                    <td>@transaction.Date.ToShortDateString()</td>
+                    <td>@transaction.Title</td>
+                    <td>@transaction.Description</td>
+                    <td>@transaction.Amount</td>
+                    <td>@transaction.Type</td>
+                    <td>@transaction.Tags</td>
+                </tr>
+            }
+        </tbody>
+    </table>
+
+    <EditForm Model="newTransaction">
+        <div class="modal" style="display:@(isModalOpen ? "block" : "none")">
+            <div class="modal-dialog">
+                <div class="modal-content">
+                    <div class="modal-header">
+                        <h5 class="modal-title">Add Transaction</h5>
+                        <button type="button" class="btn-close" @onclick="CloseModal"></button>
+                    </div>
+                    <div class="modal-body">
+                        <div class="mb-3">
+                            <label>Date</label>
+                            <input type="date" class="form-control" @bind="newTransaction.Date" />
+                        </div>
+                        <div class="mb-3">
+                            <label>Title</label>
+                            <input type="text" class="form-control" @bind="newTransaction.Title" placeholder="Enter title" />
+                        </div>
+                        <div class="mb-3">
+                            <label>Description</label>
+                            <input type="text" class="form-control" @bind="newTransaction.Description" placeholder="Enter description" />
+                        </div>
+                        <div class="mb-3">
+                            <label>Amount</label>
+                            <input type="number" class="form-control" @bind="newTransaction.Amount" placeholder="Enter amount" />
+                        </div>
+                        <div class="mb-3">
+                            <label>Type</label>
+                            <select class="form-select" @bind="newTransaction.Type">
+                                <option value="Income">Income</option>
+                                <option value="Expense">Expense</option>
+                            </select>
+                        </div>
+                        <div class="mb-3">
+                            <label>Tags</label>
+                            <select class="form-select" @bind="newTransaction.Tags">
+                                <option value="">Select a tag</option>
+                                <option value="Yearly">Yearly</option>
+                                <option value="Monthly">Monthly</option>
+                                <option value="Food">Food</option>
+                                <option value="Drinks">Drinks</option>
+                                <option value="Clothes">Clothes</option>
+                                <option value="Gadgets">Gadgets</option>
+                                <option value="Miscellaneous">Miscellaneous</option>
+                                <option value="Fuel">Fuel</option>
+                                <option value="Rent">Rent</option>
+                                <option value="EMI">EMI</option>
+                                <option value="Party">Party</option>
+                            </select>
+                        </div>
+                    </div>
+                    <div class="modal-footer">
+                        <button type="button" class="btn btn-secondary" @onclick="CloseModal">Cancel</button>
+                        <button type="button" class="btn" @onclick="AddTransaction">Save</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </EditForm>
+
+</div>
+
+@code {
+    private static readonly string FilePath = Path.Combine(@"C:\Users\ashuv\AppDevCW1\CashFlowPro\CashFlowPro\CashFlowPro\wwwroot", "transaction.json");
+
+    private List<Transaction> transactions = new();
+    private List<Transaction> filteredTransactions = new();
+    private Transaction newTransaction = new();
+    private DateTime? fromDate;
+    private DateTime? toDate;
+    private string filterTitle;
+    private string filterType;
+    private string filterTags;
+    private bool isModalOpen = false;
+    private string sortOrder = "Ascending";  // Default sorting order
+
+    public decimal TotalIncome => transactions.Where(t => t.Type == "Income").Sum(t => t.Amount);
+    public decimal TotalExpense => transactions.Where(t => t.Type == "Expense").Sum(t => t.Amount);
+
+    // Load transactions on initialization
+    protected override void OnInitialized()
+    {
+        LoadTransactions();
+        filteredTransactions = transactions; // Start with all transactions
+    }
+
+    // Load transactions from the JSON file
+    private void LoadTransactions()
+    {
+        if (File.Exists(FilePath))
+        {
+            var json = File.ReadAllText(FilePath);
+            transactions = JsonSerializer.Deserialize<List<Transaction>>(json) ?? new List<Transaction>();
+        }
+    }
+
+    // Save transactions to the JSON file
+    private void SaveTransactions()
+    {
+        var json = JsonSerializer.Serialize(transactions, new JsonSerializerOptions { WriteIndented = true });
+        File.WriteAllText(FilePath, json);
+    }
+
+    // Apply filters to transactions
+    private void FilterTransactions()
+    {
+        filteredTransactions = transactions
+            .Where(t =>
+                (!fromDate.HasValue || t.Date >= fromDate.Value) &&
+                (!toDate.HasValue || t.Date <= toDate.Value) &&
+                (string.IsNullOrWhiteSpace(filterTitle) || t.Title.Contains(filterTitle, StringComparison.OrdinalIgnoreCase)) &&
+                (string.IsNullOrWhiteSpace(filterType) || t.Type.Equals(filterType, StringComparison.OrdinalIgnoreCase)) &&
+                (string.IsNullOrWhiteSpace(filterTags) || t.Tags.Equals(filterTags, StringComparison.OrdinalIgnoreCase))
+            )
+            .ToList();
+
+        // Sort transactions based on selected sort order
+        if (sortOrder == "Descending")
+        {
+            filteredTransactions = filteredTransactions.OrderByDescending(t => t.Date).ToList();
+        }
+        else
+        {
+            filteredTransactions = filteredTransactions.OrderBy(t => t.Date).ToList();
+        }
+    }
+
+    // Clear all filters
+    private void ClearFilters()
+    {
+        fromDate = null;
+        toDate = null;
+        filterTitle = null;
+        filterType = null;
+        filterTags = null;
+        filteredTransactions = transactions;
+    }
+
+    // Add a new transaction
+    private void AddTransaction()
+    {
+        transactions.Add(newTransaction);
+        newTransaction = new Transaction();  // Clear the form
+        FilterTransactions();  // Reapply filters
+        CloseModal();  // Close modal
+        SaveTransactions();  // Save transactions to file
+    }
+
+    // Modal control
+    private void OpenModal() => isModalOpen = true;
+    private void CloseModal() => isModalOpen = false;
+
+    // Transaction class
+    public class Transaction
+    {
+        public string Title { get; set; }
+        public string Description { get; set; }
+        public DateTime Date { get; set; }
+        public decimal Amount { get; set; }
+        public string Type { get; set; }
+        public string Tags { get; set; }
+    }
+}

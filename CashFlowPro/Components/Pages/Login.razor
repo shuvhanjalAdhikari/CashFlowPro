@@ -1,0 +1,51 @@
+﻿@page "/login"
+@using CashFlowPro.Model
+
+<div class="login-container">
+    <!-- Left side: Illustration -->
+    <div class="login-image">
+        <h1>CashFLowPro</h1>
+    </div>
+
+    <!-- Right side: Login form -->
+    <div class="login-form">
+        <h2 class="welcome-text">Login to Your Account</h2>
+      
+
+        <form @onsubmit="HandleLogin">
+            <!-- Username Input -->
+            <div class="form-group">
+                <label for="Username">Username</label>
+                <input type="Username" id="Username" class="form-control" @bind="Users.UserName" placeholder="Username" />
+            </div>
+
+            <!-- Password Input -->
+            <div class="form-group">
+                <label for="password">Password</label>
+                <input type="password" id="password" class="form-control" @bind="Users.Password" placeholder="Password" />
+            </div>
+
+            <!-- Currency Dropdown -->
+            <div class="form-group">
+                <label for="currency">Currency</label>
+                <select id="currency" class="form-control" @bind="Users.Currency">
+                    <option value="" disabled selected>Select Currency</option>
+                    <option value="USD">Dollar</option>
+                    <option value="NPR">Rupees</option>
+                    <option value="EUR">Euros</option>
+                </select>
+            </div>
+
+            <!-- Error Message -->
+            @if (!string.IsNullOrEmpty(ErrorMessage))
+            {
+                    <div class="alert alert-danger">@ErrorMessage</div>
+            }
+
+            <!-- Submit Button -->
+            <button type="submit" class="btn btn-primary">
+                Log In
+            </button>
+        </form>
+    </div>
+</div>

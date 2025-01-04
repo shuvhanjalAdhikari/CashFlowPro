@@ -1,0 +1,15 @@
+[
+  {
+    "DebtSource": "Electricity Company",
+    "Amount": 100,
+    "DueDate": "2025-02-03T11:53:31.0795765+05:45",
+    "Status": "Cleared"
+  },
+  {
+    "DebtSource": "Grocery Store",
+    "Amount": 50,
+    "DueDate": "2025-01-11T11:53:31.07958+05:45",
+    "Status": "Cleared"
+  }
+  
+]
