@@ -1,105 +1,111 @@
+
 @page "/Transaction"
 @using System.Text.Json;
-
-
+@inject IJSRuntime JS
 <style>
     .container {
-        padding: 20px;
+    padding: 20px;
     }
 
     .filter-container {
-        display: flex;
-        flex-wrap: wrap;
-        gap: 15px;
+    display: flex;
+    flex-wrap: wrap;
+    gap: 15px;
     }
 
-        .filter-container .form-group {
-            flex: 1;
-            min-width: 150px;
-        }
+    .filter-container .form-group {
+    flex: 1;
+    min-width: 150px;
+    }
 
-            .filter-container .form-group select,
-            .filter-container .form-group input {
-                width: 100%;
-            }
+    .filter-container .form-group select,
+    .filter-container .form-group input {
+    width: 100%;
+    }
 
     .filter-actions {
-        display: flex;
-        gap: 10px;
-        align-items: center;
-        margin-top: 10px;
+    display: flex;
+    gap: 10px;
+    align-items: center;
+    margin-top: 10px;
     }
 
     .table {
-        width: 100%;
-        margin-top: 20px;
-        border-collapse: collapse;
+    width: 100%;
+    margin-top: 20px;
+    border-collapse: collapse;
     }
 
-        .table th, .table td {
-            padding: 10px;
-            border: 1px solid #ddd;
-            text-align: left;
-        }
+    .table th, .table td {
+    padding: 10px;
+    border: 1px solid #ddd;
+    text-align: left;
+    }
 
-        .table th {
-            background-color: #163832;
-            color: white;
-        }
+    .table th {
+    background-color: #163832;
+    color: white;
+    }
 
-        .table tbody tr:hover {
-            background-color: #f9f9f9;
-        }
+    .table tbody tr:hover {
+    background-color: #f9f9f9;
+    }
 
     .btn {
-        background-color: #0b2b26;
-        color: white;
-        border: none;
-        padding: 10px 20px;
-        cursor: pointer;
-        border-radius: 4px;
-        transition: background-color 0.3s ease;
+    background-color: #0b2b26;
+    color: white;
+    border: none;
+    padding: 10px 20px;
+    cursor: pointer;
+    border-radius: 4px;
+    transition: background-color 0.3s ease;
     }
 
-        .btn:hover {
-            background-color: #09322a;
-        }
+    .btn:hover {
+    background-color: #09322a;
+    }
 
     .modal {
-        background-color: rgba(0, 0, 0, 0.5);
-        position: fixed;
-        top: 0;
-        left: 0;
-        right: 0;
-        bottom: 0;
-        display: flex;
-        justify-content: center;
-        align-items: center;
+    background-color: rgba(0, 0, 0, 0.5);
+    position: fixed;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    display: flex;
+    justify-content: center;
+    align-items: center;
     }
 
     .modal-dialog {
-        background-color: white;
-        border-radius: 5px;
-        padding: 20px;
-        max-width: 500px;
-        width: 100%;
+    background-color: white;
+    border-radius: 5px;
+    padding: 20px;
+    max-width: 500px;
+    width: 100%;
     }
 
     .modal-header {
-        display: flex;
-        justify-content: space-between;
-        align-items: center;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
     }
 
     .modal-footer {
-        display: flex;
-        justify-content: flex-end;
-        gap: 10px;
+    display: flex;
+    justify-content: flex-end;
+    gap: 10px;
     }
 </style>
 
 <div class="container">
-
+    <div class="transaction-totals">
+        <h5>Total Transactions: @TotalTransactions</h5>
+        <h5>Total Income: @TotalIncome</h5>
+        <h5>Total Expense: @TotalExpense</h5>
+        <h5>Total Debt: @TotalDebt</h5>
+        <h5>Available Balance: @AvailableBalance</h5>
+    </div>
     <div class="filter-container">
         <div class="form-group">
             <label for="fromDate">From:</label>
@@ -241,9 +247,11 @@
 </div>
 
 @code {
+
     private static readonly string FilePath = Path.Combine(@"C:\Users\ashuv\AppDevCW1\CashFlowPro\CashFlowPro\CashFlowPro\wwwroot", "transaction.json");
 
     private List<Transaction> transactions = new();
+    private List<Debt> debts = new();
     private List<Transaction> filteredTransactions = new();
     private Transaction newTransaction = new();
     private DateTime? fromDate;
@@ -254,13 +262,23 @@
     private bool isModalOpen = false;
     private string sortOrder = "Ascending";  // Default sorting order
 
-    public decimal TotalIncome => transactions.Where(t => t.Type == "Income").Sum(t => t.Amount);
-    public decimal TotalExpense => transactions.Where(t => t.Type == "Expense").Sum(t => t.Amount);
+    private decimal totalIncome;
+    private decimal totalExpense;
+    private decimal totalDebt;
 
+
+    public decimal TotalIncome => totalIncome;
+    public decimal TotalExpense => totalExpense;
+    public decimal TotalDebt => totalDebt;
+    public int TotalTransactions => transactions.Count + debts.Count;
+    public decimal AvailableBalance => TotalIncome + TotalDebt - TotalExpense;
     // Load transactions on initialization
     protected override void OnInitialized()
     {
         LoadTransactions();
+        LoadDebts();
+
+        CalculateTotals();
         filteredTransactions = transactions; // Start with all transactions
     }
 
@@ -281,6 +299,12 @@
         File.WriteAllText(FilePath, json);
     }
 
+    private void CalculateTotals()
+    {
+        totalIncome = transactions.Where(t => t.Type == "Income").Sum(t => t.Amount);
+        totalExpense = transactions.Where(t => t.Type == "Expense").Sum(t => t.Amount);
+        totalDebt = debts.Where(d => d.Status == "Pending").Sum(d => d.Amount);
+    }
     // Apply filters to transactions
     private void FilterTransactions()
     {
@@ -317,13 +341,32 @@
     }
 
     // Add a new transaction
-    private void AddTransaction()
+    private async void AddTransaction()
+
     {
+
+        // Check if the transaction type is "Expense" and the amount exceeds the available balance
+        if (newTransaction.Type == "Expense" && newTransaction.Amount > AvailableBalance)
+        {
+            // Display an alert message when balance is insufficient
+            await JS.InvokeVoidAsync("alert", "Insufficient balance");
+            return; // Exit the method
+        }
         transactions.Add(newTransaction);
         newTransaction = new Transaction();  // Clear the form
         FilterTransactions();  // Reapply filters
+
+        CalculateTotals();
         CloseModal();  // Close modal
         SaveTransactions();  // Save transactions to file
+    }
+    private void LoadDebts()
+    {
+        if (File.Exists(FilePath))
+        {
+            var json = File.ReadAllText(FilePath);
+            debts = JsonSerializer.Deserialize<List<Debt>>(json) ?? new List<Debt>();
+        }
     }
 
     // Modal control
@@ -339,5 +382,11 @@
         public decimal Amount { get; set; }
         public string Type { get; set; }
         public string Tags { get; set; }
+    }
+    public class Debt
+    {
+        public string Title { get; set; }
+        public decimal Amount { get; set; }
+        public string Status { get; set; }
     }
 }
