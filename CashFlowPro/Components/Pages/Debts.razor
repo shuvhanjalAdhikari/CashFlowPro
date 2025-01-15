@@ -1,28 +1,43 @@
 ﻿@using System.Text.Json;
 @page "/Debt"
 
-
 <style>
     /* Table Styling */
+    body {
+        font-family: 'Arial', sans-serif;
+        background-color: #121212; /* Dark background */
+        color: #E0E0E0; /* Light text for readability */
+        margin: 0;
+        padding: 0;
+    }
     .table {
         width: 100%;
         margin-top: 20px;
         border-collapse: collapse;
+        border-radius: 8px;
+        overflow: hidden;
     }
 
-        .table th, .table td {
-            padding: 10px;
-            border: 1px solid #ddd;
+        .table th,
+        .table td {
+            padding: 14px;
+            border: 1px solid #424242; /* Darker border for the table */
             text-align: left;
         }
 
         .table th {
-            background-color: #163832; /* Dark green background for table headers */
-            color: white; /* White text for headers */
+            background-color: #212121; /* Dark header background */
+            color: #4A90E2; /* Softer blue text for headers */
+            text-transform: uppercase;
+            font-weight: 600;
         }
 
         .table tbody tr:hover {
-            background-color: #f9f9f9; /* Light grey background on row hover */
+            background-color: #333; /* Slightly lighter gray for row hover */
+        }
+
+        .table tbody tr td {
+            color: #E0E0E0; /* Light text in table cells */
         }
 
     /* Form Inputs */
@@ -30,40 +45,50 @@
         margin-bottom: 15px;
     }
 
-    .form-control, .form-select {
+    .form-control,
+    .form-select {
         width: 100%;
-        padding: 10px;
-        border-radius: 5px;
-        border: 1px solid #ddd;
-        font-size: 14px;
+        padding: 12px;
+        border-radius: 8px;
+        border: 1px solid #424242; /* Dark border for input fields */
+        background-color: #333; /* Dark input background */
+        color: #E0E0E0; /* Light text */
+        font-size: 1rem;
+        transition: all 0.3s ease;
     }
 
-        .form-control:focus, .form-select:focus {
-            border-color: #0b2b26;
-            box-shadow: 0 0 5px rgba(11, 43, 38, 0.3);
+        .form-control:focus,
+        .form-select:focus {
+            outline: none;
+            border-color: #4A90E2; /* Softer blue border on focus */
+            box-shadow: 0 0 6px rgba(74, 144, 226, 0.5); /* Softer blue glow */
         }
 
     /* Buttons */
     .btn {
-        padding: 10px 20px;
-        border-radius: 5px;
+        padding: 12px 24px;
+        border-radius: 8px;
         font-weight: bold;
+        font-size: 1rem;
         color: #fff;
-        background-color: #0b2b26;
+        background-color: #4A90E2; /* Primary button color */
         border: none;
+        transition: background-color 0.3s ease, transform 0.2s ease;
     }
 
         .btn:hover {
-            background-color: #0a2420;
+            background-color: #357ABD; /* Slightly darker blue on hover */
+            transform: scale(1.05);
         }
 
     .btn-outline-secondary {
-        color: #0b2b26;
-        border: 1px solid #0b2b26;
+        color: #4A90E2; /* Softer blue text */
+        background-color: #333; /* Dark background */
+        border: 1px solid #4A90E2;
     }
 
         .btn-outline-secondary:hover {
-            background-color: #0b2b26;
+            background-color: #4A90E2;
             color: #fff;
         }
 
@@ -82,22 +107,48 @@
     /* Modal Styles */
     .modal-dialog {
         max-width: 500px;
-        margin: 0 auto;
+        width: 100%;
+        background-color: #333; /* Dark modal background */
+        border-radius: 10px;
+        box-shadow: 0 4px 12px rgba(0, 0, 0, 0.5);
     }
 
     .modal-body {
-        padding: 30px;
+        padding: 25px;
+        color: #E0E0E0; /* Light modal text */
     }
 
     .modal-header {
-        border-bottom: 1px solid #ddd;
+        border-bottom: 1px solid #424242; /* Dark border */
+        padding-bottom: 10px;
+        color: #4A90E2; /* Softer blue header text */
     }
 
     .modal-footer {
         display: flex;
         justify-content: flex-end;
+        gap: 10px;
     }
+
+    /* Active States */
+    .active-link {
+        color: #4A90E2;
+        font-weight: 600;
+    }
+
+    /* Links */
+    a {
+        color: #4A90E2; /* Softer blue links */
+        text-decoration: none;
+        font-weight: 500;
+        transition: color 0.3s ease;
+    }
+
+        a:hover {
+            color: #357ABD; /* Darker blue on hover */
+        }
 </style>
+
 
 <div class="d-flex justify-content-between mb-3">
     <div class="d-flex">
@@ -270,13 +321,12 @@
         SaveDebts();  // Save the updated list to the file
     }
 
-    // Debt class for managing debt details
     public class Debt
     {
         public string DebtSource { get; set; }
         public decimal Amount { get; set; }
         public DateTime? DueDate { get; set; }
-        public string Status { get; set; } // "Pending" or "Cleared"
+        public string Status { get; set; }
     }
 }
 

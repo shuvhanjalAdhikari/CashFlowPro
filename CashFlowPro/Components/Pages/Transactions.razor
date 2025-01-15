@@ -3,107 +3,211 @@
 @using System.Text.Json;
 @inject IJSRuntime JS
 <style>
-    .container {
-    padding: 20px;
+    /* Base styles */
+    body {
+        font-family: 'Arial', sans-serif;
+        background-color: #121212; /* Dark background */
+        color: #E0E0E0; /* Light text for readability */
+        margin: 0;
+        padding: 0;
     }
 
+    .container {
+        max-width: 1200px;
+        margin: 0 auto;
+        padding: 30px;
+    }
+
+    /* Header and totals */
+    .transaction-totals h5 {
+        color: #A0A0A0; /* Light gray for header */
+        font-size: 1.2rem;
+        font-weight: bold;
+        margin: 0;
+        padding: 15px 0;
+    }
+
+    /* Filter container */
     .filter-container {
-    display: flex;
-    flex-wrap: wrap;
-    gap: 15px;
+        display: flex;
+        flex-wrap: wrap;
+        gap: 25px;
+        margin-bottom: 30px;
     }
 
     .filter-container .form-group {
-    flex: 1;
-    min-width: 150px;
+        flex: 1;
+        min-width: 220px;
     }
 
-    .filter-container .form-group select,
-    .filter-container .form-group input {
-    width: 100%;
+    .filter-container label {
+        font-weight: 500;
+        color: #B0BEC5; /* Light gray for labels */
+        margin-bottom: 8px;
     }
 
-    .filter-actions {
-    display: flex;
-    gap: 10px;
-    align-items: center;
-    margin-top: 10px;
+    .filter-container select,
+    .filter-container input {
+        width: 100%;
+        padding: 12px;
+        border: 1px solid #424242; /* Slightly lighter border for dark theme */
+        border-radius: 8px;
+        background-color: #333; /* Dark input fields */
+        color: #E0E0E0; /* Light text inside inputs */
+        font-size: 0.95rem;
+        transition: all 0.3s ease;
     }
 
-    .table {
-    width: 100%;
-    margin-top: 20px;
-    border-collapse: collapse;
+    .filter-container input:focus,
+    .filter-container select:focus {
+        outline: none;
+        border-color: #4A90E2; /* Softer blue on focus */
+        box-shadow: 0 0 6px rgba(74, 144, 226, 0.5); /* Softer blue glow on focus */
     }
 
-    .table th, .table td {
-    padding: 10px;
-    border: 1px solid #ddd;
-    text-align: left;
-    }
-
-    .table th {
-    background-color: #163832;
-    color: white;
-    }
-
-    .table tbody tr:hover {
-    background-color: #f9f9f9;
-    }
-
+    /* Buttons */
     .btn {
-    background-color: #0b2b26;
-    color: white;
-    border: none;
-    padding: 10px 20px;
-    cursor: pointer;
-    border-radius: 4px;
-    transition: background-color 0.3s ease;
+        padding: 12px 24px;
+        font-size: 1rem;
+        border-radius: 8px;
+        cursor: pointer;
+        transition: background-color 0.3s ease, transform 0.2s ease;
+        border: none;
+        font-weight: 500;
+        background-color: #424242; /* Dark button */
+        color: #E0E0E0; /* Light text */
     }
 
     .btn:hover {
-    background-color: #09322a;
+        background-color: #4A90E2; /* Softer blue on hover */
+        color: #FFF;
+        transform: scale(1.05);
     }
 
+    .btn-outline-secondary {
+        background-color: #333; /* Dark secondary button */
+        color: #4A90E2; /* Softer blue text */
+        border: 1px solid #4A90E2;
+    }
+
+    .btn-outline-secondary:hover {
+        background-color: #4A90E2;
+        color: #FFF;
+    }
+
+    /* Table */
+    .table {
+        width: 100%;
+        margin-top: 30px;
+        border-collapse: collapse;
+        border-radius: 8px;
+        overflow: hidden;
+    }
+
+    .table th,
+    .table td {
+        padding: 14px;
+        border: 1px solid #424242; /* Dark borders for table */
+        text-align: left;
+        font-size: 1rem;
+        color: #E0E0E0; /* Light content text for readability */
+    }
+
+    .table th {
+        background-color: #212121; /* Dark header */
+        color: #4A90E2; /* Softer blue text for headers */
+        text-transform: uppercase;
+        font-weight: 600;
+    }
+
+    .table tbody tr:hover {
+        background-color: #424242; /* Slightly lighter gray on hover */
+    }
+
+    .table tbody tr td {
+        color: white; /* White content in table cells */
+    }
+
+    /* Modal */
     .modal {
-    background-color: rgba(0, 0, 0, 0.5);
-    position: fixed;
-    top: 0;
-    left: 0;
-    right: 0;
-    bottom: 0;
-    display: flex;
-    justify-content: center;
-    align-items: center;
+        background-color: rgba(0, 0, 0, 0.7); /* Dark background for modal */
+        position: fixed;
+        top: 0;
+        left: 0;
+        right: 0;
+        bottom: 0;
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        transition: opacity 0.3s ease-in-out;
     }
 
     .modal-dialog {
-    background-color: white;
-    border-radius: 5px;
-    padding: 20px;
-    max-width: 500px;
-    width: 100%;
+        background-color: #333; /* Dark background for modal */
+        padding: 25px;
+        border-radius: 10px;
+        max-width: 500px;
+        width: 100%;
+        box-shadow: 0 4px 12px rgba(0, 0, 0, 0.4);
     }
 
     .modal-header {
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        border-bottom: 1px solid #424242;
+        padding-bottom: 12px;
+    }
+
+    .modal-title {
+        font-size: 1.3rem;
+        color: #4A90E2; /* Softer blue title */
     }
 
     .modal-footer {
-    display: flex;
-    justify-content: flex-end;
-    gap: 10px;
+        display: flex;
+        justify-content: flex-end;
+        gap: 10px;
+    }
+
+    /* Input field focus states */
+    .form-control:focus {
+        border-color: #4A90E2; /* Softer blue focus */
+        box-shadow: 0 0 5px rgba(74, 144, 226, 0.5);
+    }
+
+    /* Links */
+    a {
+        color: #4A90E2; /* Softer blue for links */
+        text-decoration: none;
+        font-weight: 500;
+        transition: color 0.3s ease;
+    }
+
+    a:hover {
+        color: #357ABD; /* Slightly darker blue for hover */
+    }
+
+    a:active {
+        color: #2A5D8C; /* Even darker blue for active */
+    }
+
+    /* Active link state */
+    .active-link {
+        color: #4A90E2;
+        font-weight: 600;
     }
 </style>
+
+
+
+
 
 <div class="container">
     <div class="transaction-totals">
         <h5>Total Transactions: @TotalTransactions</h5>
-        <h5>Total Income: @TotalIncome</h5>
-        <h5>Total Expense: @TotalExpense</h5>
-        <h5>Total Debt: @TotalDebt</h5>
+     
+
         <h5>Available Balance: @AvailableBalance</h5>
     </div>
     <div class="filter-container">
@@ -123,8 +227,9 @@
             <label for="filterType">Type:</label>
             <select class="form-select" @bind="filterType">
                 <option value="">Select type</option>
-                <option value="Income">Income</option>
                 <option value="Expense">Expense</option>
+                <option value="Income">Income</option>
+                <option value="Debt">Debt</option>
             </select>
         </div>
         <div class="form-group">
@@ -213,28 +318,29 @@
                         <div class="mb-3">
                             <label>Type</label>
                             <select class="form-select" @bind="newTransaction.Type">
+                                <option value="">Select type</option>
                                 <option value="Income">Income</option>
                                 <option value="Expense">Expense</option>
+                                <option value="Debt">Debt</option>
                             </select>
                         </div>
                         <div class="mb-3">
                             <label>Tags</label>
-                            <select class="form-select" @bind="newTransaction.Tags">
+                            <select class="form-select" @onchange="HandleTagChange">
                                 <option value="">Select a tag</option>
-                                <option value="Yearly">Yearly</option>
-                                <option value="Monthly">Monthly</option>
-                                <option value="Food">Food</option>
-                                <option value="Drinks">Drinks</option>
-                                <option value="Clothes">Clothes</option>
-                                <option value="Gadgets">Gadgets</option>
-                                <option value="Miscellaneous">Miscellaneous</option>
-                                <option value="Fuel">Fuel</option>
-                                <option value="Rent">Rent</option>
-                                <option value="EMI">EMI</option>
-                                <option value="Party">Party</option>
+                                @foreach (var tag in tags)
+                                {
+                                    <option value="@tag">@tag</option>
+                                }
+                                <option value="EditTags">Edit Tags...</option>
                             </select>
+                            @if (isEditingTags)
+                            {
+                                <input type="text" class="form-control mt-2" placeholder="Enter custom tags"
+                                       @bind="customTagsInput" @onblur="AssignCustomTag" />
+                            }
                         </div>
-                    </div>
+                        </div>
                     <div class="modal-footer">
                         <button type="button" class="btn btn-secondary" @onclick="CloseModal">Cancel</button>
                         <button type="button" class="btn" @onclick="AddTransaction">Save</button>
@@ -249,6 +355,41 @@
 @code {
 
     private static readonly string FilePath = Path.Combine(@"C:\Users\ashuv\AppDevCW1\CashFlowPro\CashFlowPro\CashFlowPro\wwwroot", "transaction.json");
+    @code {
+        private List<string> tags = new List<string>
+    {
+        "Yearly", "Monthly", "Food", "Drinks", "Clothes", "Gadgets", "Miscellaneous", "Fuel", "Rent", "EMI", "Party"
+    };
+
+        private bool isEditingTags = false;
+        private string customTagsInput = string.Empty;
+
+        private void HandleTagChange(ChangeEventArgs e)
+        {
+            var selectedValue = e.Value?.ToString();
+            if (selectedValue == "EditTags")
+            {
+                isEditingTags = true; // Show the input field for manual entry
+            }
+            else
+            {
+                newTransaction.Tags = selectedValue; // Assign selected predefined tag
+                isEditingTags = false; // Hide input field
+            }
+        }
+
+        private void AssignCustomTag()
+        {
+            if (!string.IsNullOrWhiteSpace(customTagsInput))
+            {
+                newTransaction.Tags = customTagsInput.Trim(); // Assign the custom tag directly
+            }
+
+            // Clear the input field and exit edit mode
+            customTagsInput = string.Empty;
+            isEditingTags = false;
+        }
+    }
 
     private List<Transaction> transactions = new();
     private List<Debt> debts = new();

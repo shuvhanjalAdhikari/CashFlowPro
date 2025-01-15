@@ -22,6 +22,30 @@
     "Amount": 75,
     "Type": "Expense",
     "Tags": "Miscellaneous"
+  },
+  {
+    "Title": "Salary",
+    "Description": "Monthly",
+    "Date": "2025-01-06T00:00:00",
+    "Amount": 100,
+    "Type": "Income",
+    "Tags": "Monthly"
+  },
+  {
+    "Title": "Salary",
+    "Description": "Monthy",
+    "Date": "2025-01-15T00:00:00",
+    "Amount": 2000,
+    "Type": "Income",
+    "Tags": "websurfer"
+  },
+  {
+    "Title": "Shuvhanjal",
+    "Description": "Shuvhanjal",
+    "Date": "2025-01-15T00:00:00",
+    "Amount": 1234567,
+    "Type": "Income",
+    "Tags": "Party"
   }
-
+ 
 ]

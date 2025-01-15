@@ -1,206 +1,380 @@
 ﻿@page "/Dashboard"
-@using System.Text.Json
-@using System.IO
+@using System.IO;
+@using System.Text.Json;
 
 <style>
-    .dashboard-card {
-        border-radius: 10px;
-        box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
-        padding: 20px;
-        margin-bottom: 20px;
-   
+    /* Base Styling */
+    body {
+        font-family: 'Arial', sans-serif;
+        background-color: #121212; /* Dark background */
+        color: #E0E0E0; /* Light text for readability */
+        margin: 0;
+        padding: 0;
     }
-
-    .dashboard-card-1 {
-        border-radius: 10px;
-        box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
-        padding: 20px;
-        margin-bottom: 20px;
-        background-color: #163832;
-    }
-
-    .dashboard-header {
-        display: flex;
-        justify-content: space-between;
-    }
-
-    /* Additional styling for the tables */
-    .table {
-        margin-top: 20px;
-    }
-
-        .table th, .table td {
-            padding: 10px;
-            border: 1px solid #ddd;
-            text-align: left;
-        }
-
-        .table th {
-            background-color: #163832;
-            color: white;
-        }
-
-        .table tbody tr:hover {
-            background-color: #f9f9f9;
-        }
 
     .container {
         max-width: 1200px;
-        margin: auto;
+        margin: 0 auto;
+        padding: 30px;
+    }
+    /* Dashboard Stats */
+
+
+    /* Color variations for different stats */
+    .dashboard-card-1 {
+        background-color: #4A90E2; /* Blue for Total Inflows */
+        color: #fff;
+        padding: 20px;
+        border-radius: 10px;
+        text-align: center;
+        margin-bottom: 20px;
+        transition: transform 0.3s ease, box-shadow 0.3s ease;
     }
 
-    .btn {
-        margin-left: 10px;
-        background-color: #0b2b26;
-        color: white;
+        .dashboard-card-1:hover {
+            transform: translateY(-5px); /* Lift effect on hover */
+            box-shadow: 0 8px 15px rgba(0, 0, 0, 0.2);
+        }
+
+    .dashboard-card-2 {
+        background-color: #FF6F61; /* Coral Red for Total Outflows */
+        color: #fff;
+        padding: 20px;
+        border-radius: 10px;
+        text-align: center;
+        margin-bottom: 20px;
+        transition: transform 0.3s ease, box-shadow 0.3s ease;
     }
+
+        .dashboard-card-2:hover {
+            transform: translateY(-5px); /* Lift effect on hover */
+            box-shadow: 0 8px 15px rgba(0, 0, 0, 0.2);
+        }
+
+    .dashboard-card-3 {
+        background-color: #50E3C2; /* Teal for Total Debt */
+        color: #fff;
+        padding: 20px;
+        border-radius: 10px;
+        text-align: center;
+        margin-bottom: 20px;
+        transition: transform 0.3s ease, box-shadow 0.3s ease;
+    }
+
+        .dashboard-card-3:hover {
+            transform: translateY(-5px); /* Lift effect on hover */
+            box-shadow: 0 8px 15px rgba(0, 0, 0, 0.2);
+        }
+
+    .dashboard-card-4 {
+        background-color: #F5A623; /* Orange for Available Balance */
+        color: #fff;
+        padding: 20px;
+        border-radius: 10px;
+        text-align: center;
+        margin-bottom: 20px;
+        transition: transform 0.3s ease, box-shadow 0.3s ease;
+    }
+
+        .dashboard-card-4:hover {
+            transform: translateY(-5px); /* Lift effect on hover */
+            box-shadow: 0 8px 15px rgba(0, 0, 0, 0.2);
+        }
+
+
+    /* Header Section */
+    .dashboard-header {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        margin-bottom: 30px;
+        padding: 20px;
+        background-color: #1c1c1c; /* Subtle background for header */
+        border-radius: 8px;
+        box-shadow: 0 4px 10px rgba(0, 0, 0, 0.5); /* Light shadow for depth */
+    }
+
+    /* Table Styling */
+    .table {
+        width: 100%;
+        border-collapse: collapse;
+        margin-top: 30px;
+        background-color: #1e1e1e;
+        border-radius: 8px; /* Rounded corners for table */
+        overflow: hidden;
+        box-shadow: 0 6px 18px rgba(0, 0, 0, 0.2); /* Table shadow */
+    }
+
+        .table th, .table td {
+            padding: 15px;
+            text-align: left;
+            font-size: 1rem;
+            color: #E0E0E0;
+            border: 1px solid #424242; /* Darker border */
+            transition: background-color 0.3s; /* Smooth transition for hover */
+        }
+
+        .table th {
+            background-color: #212121; /* Dark header background */
+            color: #4A90E2; /* Softer blue for headers */
+            font-weight: bold;
+            text-transform: uppercase;
+        }
+
+        .table tbody tr {
+            transition: background-color 0.3s; /* Smooth row hover effect */
+        }
+
+            .table tbody tr:hover {
+                background-color: #424242; /* Slightly lighter gray for hover */
+            }
+
+    /* Buttons */
+    .btn {
+        padding: 12px 24px;
+        border-radius: 8px;
+        background-color: #424242; /* Dark button background */
+        color: #E0E0E0; /* Light text */
+        border: none;
+        font-size: 1rem;
+        transition: background-color 0.3s, transform 0.2s ease;
+        font-weight: 500;
+    }
+
+        .btn:hover {
+            background-color: #4A90E2; /* Softer blue on hover */
+            transform: scale(1.05);
+        }
+
+    /* Modal */
+    .modal {
+        background-color: rgba(0, 0, 0, 0.7); /* Darker overlay */
+        position: fixed;
+        top: 0;
+        left: 0;
+        right: 0;
+        bottom: 0;
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        transition: opacity 0.3s ease-in-out;
+    }
+
+    .modal-dialog {
+        background-color: #333;
+        padding: 25px;
+        border-radius: 12px;
+        max-width: 600px;
+        width: 100%;
+        box-shadow: 0 6px 18px rgba(0, 0, 0, 0.4); /* Modal shadow */
+    }
+
+    .modal-header {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        border-bottom: 1px solid #424242;
+        padding-bottom: 12px;
+    }
+
+    .modal-title {
+        font-size: 1.3rem;
+        color: #4A90E2; /* Softer blue title */
+    }
+
+    .modal-footer {
+        display: flex;
+        justify-content: flex-end;
+        gap: 12px;
+    }
+
+    /* Active Link */
+    .active-link {
+        color: #4A90E2;
+        font-weight: 600;
+        text-decoration: underline;
+    }
+
+    /* Form Inputs */
+    input[type="date"], select {
+        background-color: #333; /* Dark input fields */
+        border: 1px solid #424242; /* Slightly lighter border */
+        padding: 12px;
+        color: #E0E0E0;
+        border-radius: 8px;
+        font-size: 0.95rem;
+        transition: all 0.3s ease;
+    }
+
+        input[type="date"]:hover, select:hover {
+            background-color: #424242;
+        }
+
+        input[type="date"]:focus, select:focus {
+            outline: none;
+            border-color: #4A90E2; /* Softer blue on focus */
+            box-shadow: 0 0 6px rgba(74, 144, 226, 0.5); /* Blue glow on focus */
+        }
+
+    /* Footer */
+    footer {
+        background-color: #1e1e1e;
+        padding: 20px;
+        text-align: center;
+        color: #888;
+        border-top: 1px solid #424242; /* Darker border */
+    }
+
 </style>
 
-<div class="container mt-4">
-    <!-- Parent Card for Dashboard Stats -->
-    <div class="row">
-        <div class="col-md-12">
-            <div class="dashboard-card bg-light p-4">
-                <h5 class="text-center">Dashboard Stats</h5>
-                <div class="row">
-                    <div class="col-md-4">
-                        <div class="dashboard-card-1 text-white text-center p-4">
-                            <h5>Total Inflows</h5>
-                            <h2>@totalIncome</h2>
-                        </div>
-                    </div>
-                    <div class="col-md-4">
-                        <div class="dashboard-card-1 text-white text-center p-4">
-                            <h5>Total Outflows</h5>
-                            <h2>@totalExpense</h2>
-                        </div>
-                    </div>
-                    <div class="col-md-4">
-                        <div class="dashboard-card-1 text-white text-center p-4">
-                            <h5>Total Debt</h5>
-                            <h2>@totalDebt</h2>
-                        </div>
+
+<!-- Dashboard Stats -->
+<div class="row">
+    <div class="col-md-12">
+        <div class="dashboard-card bg-light p-4">
+            <h5 class="text-center text-white">Dashboard Stats</h5>
+            <div class="row">
+                <div class="col-md-4">
+                    <div class="dashboard-card-1">
+                        <h5>Total Inflows</h5>
+                        <h2>@totalIncome</h2>
                     </div>
                 </div>
-                <div class="row">
-                    <div class="col-md-4">
-                        <div class="dashboard-card-1 text-white text-center p-4">
-                            <h5>Available Balance</h5>
-                            <h2>@availableBalance</h2>
-                        </div>
+                <div class="col-md-4">
+                    <div class="dashboard-card-2">
+                        <h5>Total Outflows</h5>
+                        <h2>@totalExpense</h2>
+                    </div>
+                </div>
+                <div class="col-md-4">
+                    <div class="dashboard-card-3">
+                        <h5>Total Debt</h5>
+                        <h2>@totalDebt</h2>
                     </div>
                 </div>
             </div>
-        </div>
-    </div>
-
-    <!-- Date Range Filter for All Debts -->
-    <div class="row mt-4">
-        <div class="col-md-12">
-            <div class="dashboard-card">
-                <h5>All Debts</h5>
-                <div class="form-group">
-                    <label>Start Date</label>
-                    <input type="date" @bind="startDateDebts" class="form-control" />
-                    <label>End Date</label>
-                    <input type="date" @bind="endDateDebts" class="form-control" />
-                    <button class="btn mt-2" @onclick="FilterDebts">Filter Debts</button>
-                    <button class="btn mt-2 ml-2" @onclick="ClearDebtsFilters">Clear Filters</button>
-
-                    <select class="form-control mt-2" @bind="debtStatusFilter">
-                        <option value="">All Debts</option>
-                        <option value="Pending">Pending Debts</option>
-                        <option value="Cleared">Cleared Debts</option>
-                    </select>
-
-                    <button class="btn mt-2 ml-2" @onclick="ShowTop5HighestDebts">Top 5 Highest Debts</button>
-                    <button class="btn mt-2 ml-2" @onclick="ShowTop5LowestDebts">Top 5 Lowest Debts</button>
+            <div class="row">
+                <div class="col-md-4">
+                    <div class="dashboard-card-4">
+                        <h5>Available Balance</h5>
+                        <h2>@availableBalance</h2>
+                    </div>
                 </div>
-                <table class="table table-striped mt-3">
-                    <thead>
-                        <tr>
-                            <th>Debt Source</th>
-                            <th>Amount</th>
-                            <th>Due Date</th>
-                            <th>Status</th>
-                        </tr>
-                    </thead>
-                    <tbody>
-                        @if (highlightedDebt != null)
-                        {
-                            <tr>
-                                <td>@highlightedDebt.DebtSource</td>
-                                <td>@highlightedDebt.Amount</td>
-                                <td>@highlightedDebt.DueDate?.ToString("MM/dd/yyyy")</td>
-                                <td>@highlightedDebt.Status</td>
-                            </tr>
-                        }
-                        @foreach (var debt in filteredDebts)
-                        {
-                            <tr>
-                                <td>@debt.DebtSource</td>
-                                <td>@debt.Amount</td>
-                                <td>@debt.DueDate?.ToString("MM/dd/yyyy")</td>
-                                <td>@debt.Status</td>
-                            </tr>
-                        }
-                    </tbody>
-                </table>
-            </div>
-        </div>
-    </div>
-
-    <!-- Date Range Filter for Transactions -->
-    <div class="row mt-4">
-        <div class="col-md-12">
-            <div class="dashboard-card">
-                <h5>All Transactions</h5>
-                <div class="form-group">
-                    <label>Start Date</label>
-                    <input type="date" @bind="startDateTransactions" class="form-control" />
-                    <label>End Date</label>
-                    <input type="date" @bind="endDateTransactions" class="form-control" />
-                    <button class="btn mt-2" @onclick="FilterTransactions">Filter Transactions</button>
-                    <button class="btn mt-2 ml-2" @onclick="ClearTransactionsFilters">Clear Filters</button>
-                    <button class="btn mt-2 ml-2" @onclick="ShowTop5HighestTransactions">Top 5 Highest Transactions</button>
-                    <button class="btn mt-2 ml-2" @onclick="ShowTop5LowestTransactions">Top 5 Lowest Transactions</button>
-                </div>
-                <table class="table table-striped mt-3">
-                    <thead>
-                        <tr>
-                            <th>Description</th>
-                            <th>Amount</th>
-                            <th>Date</th>
-                            <th>Type</th>
-                        </tr>
-                    </thead>
-                    <tbody>
-                        @if (highlightedTransaction != null)
-                        {
-                            <tr>
-                                <td>@highlightedTransaction.Description</td>
-                                <td>@highlightedTransaction.Amount</td>
-                                <td>@highlightedTransaction.Date.ToString("MM/dd/yyyy")</td>
-                                <td>@highlightedTransaction.Type</td>
-                            </tr>
-                        }
-                        @foreach (var transaction in filteredTransactions)
-                        {
-                            <tr>
-                                <td>@transaction.Description</td>
-                                <td>@transaction.Amount</td>
-                                <td>@transaction.Date.ToString("MM/dd/yyyy")</td>
-                                <td>@transaction.Type</td>
-                            </tr>
-                        }
-                    </tbody>
-                </table>
             </div>
         </div>
     </div>
 </div>
+<canvas id="transactionsPieChart" width="100" height="200"></canvas>
+
+
+<!-- Date Range Filter for Debts -->
+<div class="row mt-4">
+    <div class="col-md-12">
+        <div class="dashboard-card">
+            <h5>All Debts</h5>
+            <div class="form-group">
+                <label>Start Date</label>
+                <input type="date" @bind="startDateDebts" class="form-control" />
+                <label>End Date</label>
+                <input type="date" @bind="endDateDebts" class="form-control" />
+                <button class="btn mt-2" @onclick="FilterDebts">Filter Debts</button>
+                <button class="btn mt-2 ml-2" @onclick="ClearDebtsFilters">Clear Filters</button>
+
+                <select class="form-control mt-2" @bind="debtStatusFilter">
+                    <option value="">All Debts</option>
+                    <option value="Pending">Pending Debts</option>
+                    <option value="Cleared">Cleared Debts</option>
+                </select>
+
+                <button class="btn mt-2 ml-2" @onclick="ShowTop5HighestDebts">Top 5 Highest Debts</button>
+                <button class="btn mt-2 ml-2" @onclick="ShowTop5LowestDebts">Top 5 Lowest Debts</button>
+            </div>
+            <table class="table mt-3">
+                <thead>
+                    <tr>
+                        <th>Debt Source</th>
+                        <th>Amount</th>
+                        <th>Due Date</th>
+                        <th>Status</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    @if (highlightedDebt != null)
+                    {
+                        <tr>
+                            <td>@highlightedDebt.DebtSource</td>
+                            <td>@highlightedDebt.Amount</td>
+                            <td>@highlightedDebt.DueDate?.ToString("MM/dd/yyyy")</td>
+                            <td>@highlightedDebt.Status</td>
+                        </tr>
+                    }
+                    @foreach (var debt in filteredDebts)
+                    {
+                        <tr>
+                            <td>@debt.DebtSource</td>
+                            <td>@debt.Amount</td>
+                            <td>@debt.DueDate?.ToString("MM/dd/yyyy")</td>
+                            <td>@debt.Status</td>
+                        </tr>
+                    }
+                </tbody>
+            </table>
+        </div>
+    </div>
+</div>
+
+<!-- Date Range Filter for Transactions -->
+<div class="row mt-4">
+    <div class="col-md-12">
+        <div class="dashboard-card">
+            <h5>All Transactions</h5>
+            <div class="form-group">
+                <label>Start Date</label>
+                <input type="date" @bind="startDateTransactions" class="form-control" />
+                <label>End Date</label>
+                <input type="date" @bind="endDateTransactions" class="form-control" />
+                <button class="btn mt-2" @onclick="FilterTransactions">Filter Transactions</button>
+                <button class="btn mt-2 ml-2" @onclick="ClearTransactionsFilters">Clear Filters</button>
+                <button class="btn mt-2 ml-2" @onclick="ShowTop5HighestTransactions">Top 5 Highest Transactions</button>
+                <button class="btn mt-2 ml-2" @onclick="ShowTop5LowestTransactions">Top 5 Lowest Transactions</button>
+            </div>
+            <table class="table mt-3">
+                <thead>
+                    <tr>
+                        <th>Description</th>
+                        <th>Amount</th>
+                        <th>Date</th>
+                        <th>Type</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    @if (highlightedTransaction != null)
+                    {
+                        <tr>
+                            <td>@highlightedTransaction.Description</td>
+                            <td>@highlightedTransaction.Amount</td>
+                            <td>@highlightedTransaction.Date.ToString("MM/dd/yyyy")</td>
+                            <td>@highlightedTransaction.Type</td>
+                        </tr>
+                    }
+                    @foreach (var transaction in filteredTransactions)
+                    {
+                        <tr>
+                            <td>@transaction.Description</td>
+                            <td>@transaction.Amount</td>
+                            <td>@transaction.Date.ToString("MM/dd/yyyy")</td>
+                            <td>@transaction.Type</td>
+                        </tr>
+                    }
+                </tbody>
+            </table>
+        </div>
+    </div>
+</div>
+
 
 @code {
+
     private decimal totalIncome;
     private decimal totalExpense;
     private decimal totalDebt;
@@ -244,8 +418,20 @@
 
         if (File.Exists(filePath))
         {
-            var json = File.ReadAllText(filePath);
-            transactions = JsonSerializer.Deserialize<List<Transaction>>(json) ?? new List<Transaction>();
+            try
+            {
+                var json = File.ReadAllText(filePath);
+                transactions = JsonSerializer.Deserialize<List<Transaction>>(json) ?? new List<Transaction>();
+            }
+            catch (Exception ex)
+            {
+                // Handle exceptions (e.g., deserialization issues, file read issues)
+                Console.WriteLine($"Error reading or deserializing the file: {ex.Message}");
+            }
+        }
+        else
+        {
+            Console.WriteLine("File not found.");
         }
     }
 

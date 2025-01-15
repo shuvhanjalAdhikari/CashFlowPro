@@ -30,7 +30,20 @@ namespace CashFlowPro.Services
             }
 
             // Check if the username and password match any user in the list.
-            return _users.Any(u => u.UserName == user.UserName && u.Password == user.Password);
+            var existingUser = _users.FirstOrDefault(u => u.UserName == user.UserName && u.Password == user.Password);
+
+            if (existingUser != null)
+            {
+                // Update the user's currency if it doesn't match or is invalid (this assumes you want to store the currency value)
+                existingUser.Currency = user.Currency;
+
+                // Save updated users to the file
+                SaveUsers(_users);
+
+                return true;
+            }
+
+            return false;
         }
     }
 }

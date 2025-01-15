@@ -1,4 +1,5 @@
 ﻿@page "/login"
+@using CashFlowPro.Base
 @using CashFlowPro.Model
 
 <div class="login-container">
@@ -30,9 +31,9 @@
                 <label for="currency">Currency</label>
                 <select id="currency" class="form-control" @bind="Users.Currency">
                     <option value="" disabled selected>Select Currency</option>
-                    <option value="USD">Dollar</option>
-                    <option value="NPR">Rupees</option>
-                    <option value="EUR">Euros</option>
+                    <option value="@(Currency.USD)">Dollar</option>
+                    <option value="@(Currency.NPR)">Rupees</option>
+                    <option value="@(Currency.INR)">Indian Rupees</option>
                 </select>
             </div>
 

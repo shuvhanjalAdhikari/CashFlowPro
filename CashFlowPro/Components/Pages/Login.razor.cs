@@ -1,4 +1,5 @@
-﻿using CashFlowPro.Model;
+﻿using CashFlowPro.Base;
+using CashFlowPro.Model;
 
 namespace CashFlowPro.Components.Pages
 {
@@ -14,14 +15,22 @@ namespace CashFlowPro.Components.Pages
         {
             if (UserService.Login(Users))
             {
-                Nav.NavigateTo("/Dashboard");
+                // Check if the currency is valid
+                if (Enum.IsDefined(typeof(Currency), Users.Currency))
+                {
+                    Nav.NavigateTo("/Dashboard");
+                }
+                else
+                {
+                    ErrorMessage = "Invalid currency selected.";
+                }
             }
-
             else
             {
-                ErrorMessage = "userName or password is invalid";
+                ErrorMessage = "Username or password is invalid.";
             }
         }
+
 
     }
 }
