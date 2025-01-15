@@ -2,6 +2,7 @@
 using MudBlazor.Services;
 using CashFlowPro.Services;
 using CashFlowPro.Services.Interface;
+using MudBlazor;
 
 namespace CashFlowPro
 {
@@ -25,7 +26,7 @@ namespace CashFlowPro
             builder.Services.AddBlazorWebViewDeveloperTools();
             builder.Services.AddMudServices();
             builder.Logging.AddDebug();
-#endif
+#endif      
 
             return builder.Build();
         }

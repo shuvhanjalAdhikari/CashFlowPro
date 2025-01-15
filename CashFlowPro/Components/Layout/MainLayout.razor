@@ -1,6 +1,10 @@
 ﻿@inherits LayoutComponentBase
 @inject NavigationManager Navigation
-
+@using MudBlazor;
+<MudThemeProvider Theme="darkTheme" />
+<MudDialogProvider />
+<MudSnackbarProvider />
+<MudPopoverProvider />
 <style>
    
 
@@ -20,3 +24,25 @@
         </article>
     </main>
 </div>
+@code {
+    // Custom dark theme to match your existing color scheme
+    private MudTheme darkTheme = new MudTheme()
+        {
+            PaletteDark = new PaletteDark()
+            {
+                Primary = "#4A90E2",
+                Secondary = "#FF6F61",
+                Background = "#121212",
+                Surface = "#1e1e1e",
+                DrawerBackground = "#1c1c1c",
+                DrawerText = "#E0E0E0",
+                AppbarBackground = "#1c1c1c",
+                TextPrimary = "#E0E0E0",
+                TextSecondary = "#aaaaaa",
+                Success = "#50E3C2",
+                Warning = "#F5A623",
+                
+            }
+        };
+}
+}

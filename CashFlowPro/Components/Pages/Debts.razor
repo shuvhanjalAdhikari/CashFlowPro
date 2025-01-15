@@ -259,18 +259,32 @@
     // Method to load debts from the JSON file
     private void LoadDebts()
     {
-        if (File.Exists(FilePath))
+        try
         {
-            var json = File.ReadAllText(FilePath);
-            debts = JsonSerializer.Deserialize<List<Debt>>(json) ?? new List<Debt>();
+            if (File.Exists(FilePath))
+            {
+                var json = File.ReadAllText(FilePath);
+                debts = JsonSerializer.Deserialize<List<Debt>>(json) ?? new List<Debt>();
+            }
+        }
+        catch (Exception ex)
+        {
+            Console.Error.WriteLine($"Error loading debts: {ex.Message}");
         }
     }
 
     // Method to save debts back to the JSON file
     private void SaveDebts()
     {
-        var json = JsonSerializer.Serialize(debts, new JsonSerializerOptions { WriteIndented = true });
-        File.WriteAllText(FilePath, json);
+        try
+        {
+            var json = JsonSerializer.Serialize(debts, new JsonSerializerOptions { WriteIndented = true });
+            File.WriteAllText(FilePath, json);
+        }
+        catch (Exception ex)
+        {
+            Console.Error.WriteLine($"Error saving debts: {ex.Message}");
+        }
     }
 
     // Filter debts based on criteria
@@ -289,22 +303,30 @@
         filterDebtSource = null;
         filterDebtStatus = null;
         filteredDebts = debts;
+
     }
 
     // Add a new debt to the list and save
     private void AddDebt()
     {
-        // Ensure status is set to "Pending" by default if not provided
-        if (string.IsNullOrEmpty(newDebt.Status))
+        try
         {
-            newDebt.Status = "Pending"; // Default to Pending
-        }
+            // Ensure status is set to "Pending" by default if not provided
+            if (string.IsNullOrEmpty(newDebt.Status))
+            {
+                newDebt.Status = "Pending"; // Default to Pending
+            }
 
-        debts.Add(newDebt);
-        newDebt = new Debt(); // Reset the new debt form
-        FilterDebts();  // Apply filters after adding
-        CloseDebtModal();  // Close the modal after adding
-        SaveDebts();  // Save the updated list to the file
+            debts.Add(newDebt);
+            newDebt = new Debt(); // Reset the new debt form
+            FilterDebts();  // Apply filters after adding
+            CloseDebtModal();  // Close the modal after adding
+            SaveDebts();  // Save the updated list to the file
+        }
+        catch (Exception ex)
+        {
+            Console.Error.WriteLine($"Error adding debt: {ex.Message}");
+        }
     }
 
     // Open debt modal for adding a new debt

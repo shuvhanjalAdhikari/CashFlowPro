@@ -12,26 +12,14 @@
     "Status": "Cleared"
   },
   {
-    "DebtSource": "Subhanga",
-    "Amount": 50,
-    "DueDate": "2025-01-09T00:00:00",
+    "DebtSource": "Global IME",
+    "Amount": 15000,
+    "DueDate": "2025-01-15T00:00:00",
     "Status": "Cleared"
   },
   {
-    "DebtSource": "Abc",
+    "DebtSource": "nishreyta",
     "Amount": 2000,
-    "DueDate": "2025-01-10T00:00:00",
-    "Status": "Cleared"
-  },
-  {
-    "DebtSource": "123",
-    "Amount": 123,
-    "DueDate": "2025-01-22T00:00:00",
-    "Status": "Cleared"
-  },
-  {
-    "DebtSource": "123456",
-    "Amount": 111111,
     "DueDate": "2025-01-15T00:00:00",
     "Status": "Cleared"
   }
