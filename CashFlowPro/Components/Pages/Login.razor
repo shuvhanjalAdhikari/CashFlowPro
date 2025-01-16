@@ -2,34 +2,154 @@
 @using CashFlowPro.Base
 @using CashFlowPro.Model
 
-<div class="login-container">
-    <!-- Left side: Illustration -->
-    <div class="login-image">
-        <h1>CashFLowPro</h1>
+<style>
+    /* General Styles */
+    body {
+        font-family: 'Arial', sans-serif;
+        background-color: #121212; /* Dark background */
+        color: #E0E0E0; /* Light text for readability */
+        margin: 0;
+        padding: 0;
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        height: 100vh; /* Full viewport height */
+    }
+
+    /* Main Container */
+    .main-container {
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        gap: 40px; /* Space between the logo and form */
+        max-width: 900px;
+        width: 100%;
+        padding: 20px;
+        background-color: #333; /* Dark background for the container */
+        border-radius: 12px;
+        box-shadow: 0 4px 12px rgba(0, 0, 0, 0.5);
+    }
+
+    /* CashFlowPro Logo */
+    .logo-container {
+        text-align: center;
+    }
+
+        .logo-container h1 {
+            font-size: 2.5rem;
+            color: #4A90E2; /* Softer blue for logo text */
+            margin: 0;
+            font-weight: 700;
+        }
+
+        .logo-container p {
+            font-size: 1.1rem;
+            color: #B0BEC5; /* Light gray for tagline */
+            margin-top: 8px;
+        }
+
+    /* Form Container */
+    .form-container {
+        max-width: 500px;
+        width: 100%;
+        padding: 30px;
+        border: 2px solid #4A90E2; /* Border with blue color */
+        border-radius: 12px; /* Rounded corners */
+        background-color: #333; /* Dark background for the form */
+        text-align: center; /* Center text alignment */
+    }
+
+    /* Form Styles */
+    .form-group {
+        margin-bottom: 20px;
+        text-align: left;
+    }
+
+        .form-group label {
+            display: block;
+            font-weight: 500;
+            color: #B0BEC5;
+            margin-bottom: 8px;
+        }
+
+        .form-group input,
+        .form-group select {
+            width: 100%;
+            padding: 12px;
+            border: 1px solid #424242;
+            border-radius: 8px;
+            background-color: #333;
+            color: #E0E0E0;
+            font-size: 0.95rem;
+            transition: all 0.3s ease;
+        }
+
+            .form-group input:focus,
+            .form-group select:focus {
+                outline: none;
+                border-color: #4A90E2;
+                box-shadow: 0 0 6px rgba(74, 144, 226, 0.5);
+            }
+
+    .btn {
+        padding: 12px 24px;
+        font-size: 1rem;
+        border-radius: 8px;
+        cursor: pointer;
+        transition: background-color 0.3s ease, transform 0.2s ease;
+        border: none;
+        font-weight: 500;
+        background-color: #424242;
+        color: #E0E0E0;
+        margin-top: 20px;
+    }
+
+        .btn:hover {
+            background-color: #4A90E2;
+            color: #FFF;
+            transform: scale(1.05);
+        }
+
+    /* Links */
+    a {
+        color: #4A90E2;
+        text-decoration: none;
+        font-weight: 500;
+        transition: color 0.3s ease;
+    }
+
+        a:hover {
+            color: #357ABD;
+        }
+</style>
+
+<div class="main-container">
+    <!-- Logo Section -->
+    <div class="logo-container">
+        <h1>CashFlowPro</h1>
+        <p>Your Financial Management Solution</p>
     </div>
 
-    <!-- Right side: Login form -->
-    <div class="login-form">
-        <h2 class="welcome-text">Login to Your Account</h2>
-      
-
+    <!-- Login Form Section -->
+    <div class="form-container">
+        <h2 class="modal-title">Login to Your Account</h2>
         <form @onsubmit="HandleLogin">
             <!-- Username Input -->
             <div class="form-group">
                 <label for="Username">Username</label>
-                <input type="Username" id="Username" class="form-control" @bind="Users.UserName" placeholder="Username" />
+                <input type="text" id="Username" class="form-control" @bind="Users.UserName" placeholder="Enter your username" />
             </div>
 
             <!-- Password Input -->
             <div class="form-group">
-                <label for="password">Password</label>
-                <input type="password" id="password" class="form-control" @bind="Users.Password" placeholder="Password" />
+                <label for="Password">Password</label>
+                <input type="password" id="Password" class="form-control" @bind="Users.Password" placeholder="Enter your password" />
             </div>
 
             <!-- Currency Dropdown -->
             <div class="form-group">
-                <label for="currency">Currency</label>
-                <select id="currency" class="form-control" @bind="Users.Currency">
+                <label for="Currency">Currency</label>
+                <select id="Currency" class="form-control" @bind="Users.Currency">
                     <option value="" disabled selected>Select Currency</option>
                     <option value="@(Currency.USD)">Dollar</option>
                     <option value="@(Currency.NPR)">Rupees</option>
@@ -40,13 +160,11 @@
             <!-- Error Message -->
             @if (!string.IsNullOrEmpty(ErrorMessage))
             {
-                    <div class="alert alert-danger">@ErrorMessage</div>
+                <div class="alert alert-danger">@ErrorMessage</div>
             }
 
             <!-- Submit Button -->
-            <button type="submit" class="btn btn-primary">
-                Log In
-            </button>
+            <button type="submit" class="btn">Log In</button>
         </form>
     </div>
 </div>

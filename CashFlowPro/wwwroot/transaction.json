@@ -78,5 +78,45 @@
     "Amount": 234900,
     "Type": "Income",
     "Tags": "Party"
+  },
+  {
+    "Title": "Small Amount",
+    "Description": "Tea",
+    "Date": "2025-01-16T00:00:00",
+    "Amount": 50,
+    "Type": "Expense",
+    "Tags": "Food"
+  },
+  {
+    "Title": "Burger Palace",
+    "Description": "Chicken Burger",
+    "Date": "2025-01-03T00:00:00",
+    "Amount": 300,
+    "Type": "Expense",
+    "Tags": "Food"
+  },
+  {
+    "Title": "petrol",
+    "Description": "2 Liters Petrol",
+    "Date": "2025-01-16T00:00:00",
+    "Amount": 450,
+    "Type": "Expense",
+    "Tags": "Fuel"
+  },
+  {
+    "Title": "Card Selling",
+    "Description": "Pokemon Card",
+    "Date": "2025-01-11T00:00:00",
+    "Amount": 500,
+    "Type": "Income",
+    "Tags": "Business"
+  },
+  {
+    "Title": "Salary",
+    "Description": "Monthly Salary",
+    "Date": "2025-01-16T00:00:00",
+    "Amount": 50000,
+    "Type": "Income",
+    "Tags": "Bonus"
   }
 ]
