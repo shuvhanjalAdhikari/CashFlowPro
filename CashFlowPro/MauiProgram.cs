@@ -23,6 +23,9 @@ namespace CashFlowPro
 #if DEBUG
             // service inject 
             builder.Services.AddScoped<IUser, UserService>();
+            builder.Services.AddScoped<DebtService>();
+            builder.Services.AddScoped<TransactionService>();
+
             builder.Services.AddBlazorWebViewDeveloperTools();
             builder.Services.AddMudServices();
             builder.Logging.AddDebug();

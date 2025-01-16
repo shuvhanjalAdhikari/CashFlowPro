@@ -46,5 +46,37 @@
     "Amount": 2000,
     "Type": "Expense",
     "Tags": "Party"
+  },
+  {
+    "Title": "ssss",
+    "Description": "ssss",
+    "Date": "2025-01-16T00:00:00",
+    "Amount": 1000,
+    "Type": "Income",
+    "Tags": "Miscellaneous"
+  },
+  {
+    "Title": "Pizza",
+    "Description": "Pizza Hut",
+    "Date": "2025-01-16T00:00:00",
+    "Amount": 1000,
+    "Type": "Expense",
+    "Tags": "Food"
+  },
+  {
+    "Title": "jhvjh",
+    "Description": "jhghgv",
+    "Date": "2025-01-16T00:00:00",
+    "Amount": 1000,
+    "Type": "Expense",
+    "Tags": "Party"
+  },
+  {
+    "Title": "haha",
+    "Description": "haha",
+    "Date": "0001-01-01T00:00:00",
+    "Amount": 234900,
+    "Type": "Income",
+    "Tags": "Party"
   }
 ]
